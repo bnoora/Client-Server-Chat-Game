@@ -7,6 +7,8 @@ class Server:
         self.port = port
         self.client_socket = None
         self.client_address = None
+        self.server_turn = False
+        self.client_turn = True
 
 
     def start(self):
@@ -19,15 +21,22 @@ class Server:
     def handle_client(self):
         try:
             while True:
-                data = self.recvData()
-                if data:
-                    self.handleSpacialCommand(data)
-                    print("Client: {}".format(data))
+                if self.client_turn:
+                    data = self.recvData()
+                    if data:
+                        print("Client: {}".format(data))
+                        self.server_turn = True
+                        self.client_turn = False
+                        self.handleSpacialCommand(data)
+                elif self.server_turn:
                     reply = input("Enter your reply: ")
-                    self.handleSpacialCommand(reply)
                     self.sendData(reply)
-        except:
-            print("Error: Client disconnected")
+                    self.server_turn = False
+                    self.client_turn = True
+                    self.handleSpacialCommand(reply)
+
+        except Exception as e:
+            print("Error: {}".format(e))
         finally:
             self.client_socket.close()
 
@@ -38,10 +47,17 @@ class Server:
         self.client_socket.sendall(data.encode())
 
     def handleSpacialCommand(self, command):
-        if command == "/q":
+        if command == "/q" and self.server_turn:
+            print("Client disconnected")
+            self.handleQuitCommand()
+        elif command == "/q" and self.client_turn:
+            print("Server disconnected")
             self.handle_quit_command()
         elif command == "/play rock paper scissors" or command == "/play rps" or command == "/play rockpaperscissors":
-            self.handle_rock_paper_scissors()
+            print(self.server_turn)
+            print(self.client_turn)
+            self.handleRockPaperScissors()
+            return
         else:
             return
 
@@ -53,15 +69,24 @@ class Server:
 
 
     def handleRockPaperScissors(self):
+        print("Starting rock paper scissors")
         winner = None
         serverScore = 0
         clientScore = 0
         while winner is None:
-            serverChoice = input("Server choice: ")
-            clientChoice = self.recvData()
-            self.sendData(serverChoice)
-            self.handleSpacialCommand(clientChoice)
-            self.handleSpacialCommand(serverChoice)
+            if self.server_turn:
+                serverChoice = input("Server choice: ")
+                self.sendData(serverChoice)
+                clientChoice = self.recvData()
+                self.handleSpacialCommand(clientChoice)
+                self.handleSpacialCommand(serverChoice)
+            elif self.client_turn:
+                clientChoice = self.recvData()
+                self.handleSpacialCommand(clientChoice)
+                serverChoice = input("Server choice: ")
+                self.sendData(serverChoice)
+                self.handleSpacialCommand(clientChoice)
+                self.handleSpacialCommand(serverChoice)
             serverChoice = serverChoice.lower()
             clientChoice = clientChoice.lower()
             print("Client choice: {}".format(clientChoice))
@@ -90,7 +115,21 @@ class Server:
                 winner = "Server"
             elif clientScore == 3:
                 winner = "Client"
-        print("{} wins".format(winner))
-        self.sendData("{} wins".format(winner))
+        if self.server_turn:
+            self.sendData("The winner is: {}".format(winner))
+            self.client_turn = True
+            self.server_turn = False
+        elif self.client_turn:
+            self.recvData()
+            self.sendData("The winner is: {}".format(winner))
+            self.client_turn = True
+            self.server_turn = False
 
+
+
+if __name__ == "__main__":
+    port = 12345
+    server = Server(port)
+    server.start()
+    server.handle_client()
 
