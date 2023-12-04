@@ -19,18 +19,23 @@ class Server:
     def handle_client(self):
         try:
             while True:
-                data = self.client_socket.recv(1024).decode()
+                data = self.recvData()
                 if data:
                     self.handleSpacialCommand(data)
                     print("Client: {}".format(data))
                     reply = input("Enter your reply: ")
                     self.handleSpacialCommand(reply)
-                    self.client_socket.sendall(reply.encode())
+                    self.sendData(reply)
         except:
             print("Error: Client disconnected")
         finally:
             self.client_socket.close()
 
+    def recvData(self):
+        return self.client_socket.recv(1024).decode()
+    
+    def sendData(self, data):
+        self.client_socket.sendall(data.encode())
 
     def handleSpacialCommand(self, command):
         if command == "/q":
@@ -53,7 +58,12 @@ class Server:
         clientScore = 0
         while winner is None:
             serverChoice = input("Server choice: ")
-            clientChoice = self.client_socket.recv(1024).decode()
+            clientChoice = self.recvData()
+            self.sendData(serverChoice)
+            self.handleSpacialCommand(clientChoice)
+            self.handleSpacialCommand(serverChoice)
+            serverChoice = serverChoice.lower()
+            clientChoice = clientChoice.lower()
             print("Client choice: {}".format(clientChoice))
             if serverChoice == clientChoice:
                 print("Draw")
@@ -81,5 +91,6 @@ class Server:
             elif clientScore == 3:
                 winner = "Client"
         print("{} wins".format(winner))
+        self.sendData("{} wins".format(winner))
 
 
