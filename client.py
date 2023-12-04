@@ -12,6 +12,10 @@ class Client:
         try:
             self.client.connect((self.host, self.port))
             print("Connected to server on {}:{}".format(self.host, self.port))
+            print("Enter message to send to server, Wait for input prompt before starting")
+            print("Enter /q to quit")
+            print("Enter /play rock paper scissors or /play rps to play rock paper scissors")
+            
         except Exception as e:
             print("Failed to connect to server: {}".format(e))
             exit()

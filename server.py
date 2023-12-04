@@ -17,6 +17,9 @@ class Server:
 
         self.client_socket, self.client_address = self.server.accept()
         print("Connection from {}".format(self.client_address))
+        print("Enter message to send to client, Wait for input prompt before starting")
+        print("Enter /q to quit")
+        print("Enter /play rock paper scissors or /play rps to play rock paper scissors")
 
     def handle_client(self):
         try:
@@ -132,4 +135,3 @@ if __name__ == "__main__":
     server = Server(port)
     server.start()
     server.handle_client()
-
