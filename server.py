@@ -21,10 +21,10 @@ class Server:
             while True:
                 data = self.client_socket.recv(1024).decode()
                 if data:
-                    self.handle_quit_command(data)
+                    self.handleSpacialCommand(data)
                     print("Client: {}".format(data))
                     reply = input("Enter your reply: ")
-                    self.handle_quit_command(reply)
+                    self.handleSpacialCommand(reply)
                     self.client_socket.sendall(reply.encode())
         except:
             print("Error: Client disconnected")
@@ -37,6 +37,8 @@ class Server:
             self.handle_quit_command()
         elif command == "/play rock paper scissors" or command == "/play rps" or command == "/play rockpaperscissors":
             self.handle_rock_paper_scissors()
+        else:
+            return
 
     def handleQuitCommand(self):
         self.client_socket.close()
@@ -46,5 +48,38 @@ class Server:
 
 
     def handleRockPaperScissors(self):
-        pass
+        winner = None
+        serverScore = 0
+        clientScore = 0
+        while winner is None:
+            serverChoice = input("Server choice: ")
+            clientChoice = self.client_socket.recv(1024).decode()
+            print("Client choice: {}".format(clientChoice))
+            if serverChoice == clientChoice:
+                print("Draw")
+            elif serverChoice == "rock" and clientChoice == "paper":
+                print("Client wins")
+                clientScore += 1
+            elif serverChoice == "rock" and clientChoice == "scissors":
+                print("Server wins")
+                serverScore += 1
+            elif serverChoice == "paper" and clientChoice == "rock":
+                print("Server wins")
+                serverScore += 1
+            elif serverChoice == "paper" and clientChoice == "scissors":
+                print("Client wins")
+                clientScore += 1
+            elif serverChoice == "scissors" and clientChoice == "rock":
+                print("Client wins")
+                clientScore += 1
+            elif serverChoice == "scissors" and clientChoice == "paper":
+                print("Server wins")
+                serverScore += 1
+            print("Server score: {} Client score: {}".format(serverScore, clientScore))
+            if serverScore == 3:
+                winner = "Server"
+            elif clientScore == 3:
+                winner = "Client"
+        print("{} wins".format(winner))
+
 
