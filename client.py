@@ -105,10 +105,6 @@ class Client:
                 winner = "Client"
 
 
-
-
-
-# Usage
 if __name__ == "__main__":
     host = "localhost" 
     port = 12345  
