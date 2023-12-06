@@ -1,3 +1,10 @@
+# Author: Behrad Noorani
+# Sources:
+# https://docs.python.org/3.4/howto/sockets.html
+# https://realpython.com/python-sockets/
+# https://www.geeksforgeeks.org/socket-programming-python/
+
+
 import socket
 
 
