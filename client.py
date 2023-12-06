@@ -118,9 +118,9 @@ class Client:
         while winner is None:
             if self.server_turn:
                 serverChoice = self.recvData()
-                print("Server choice: {}".format(serverChoice))
                 clientChoice = input("Enter your choice: ")
                 self.sendData(clientChoice)
+                print("Server choice: {}".format(serverChoice))
             elif self.client_turn:
                 clientChoice = input("Enter your choice: ")
                 self.sendData(clientChoice)
