@@ -88,6 +88,9 @@ class Server:
     Description: Sends data to the client
     '''
     def sendData(self, data):
+        if len(data.encode()) > 4096:
+            print("Message too long, it will be reduced to 4096 bytes.")
+            data = data.encode()[:4096].decode('utf-8', 'ignore')
         self.client_socket.sendall(data.encode())
 
     '''
